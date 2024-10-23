@@ -61,43 +61,69 @@ class App extends Component {
 
   //render()方法返回一个jsx元素，该元素同时包含html和JavaScript代码
   render() {
+    //解构，让代码更加简洁
+    const {list, searchTerm} = this.state;
+
     //声明变量关键字const和let更常见
     return (
       <div className="App">
-
-        <form>
-          <input type="text"
-            onChange={this.onSearchChange}
-          />
-        </form>
-        {this.state.list.filter(isSearched(this.state.searchTerm)).map(item=>
-          {
-            return (
-              //key是虚拟DOM的唯一标识符，在重新渲染时React会使用它来确定哪些节点需要更新
-              //新旧虚拟DOM的key相同时，若内容有变化，React会更新节点内容，否则不会更新
-              //若key不一致，React会认为是不同的节点，会创建新的节点，并重新渲染
-              <div key={item.objectID}>
-                <span><a href='{item.url}'>{item.title}</a></span>
-                <span> by {item.author}</span>
-                <span> {item.num_comments} comments</span>
-                <span> {item.points} points</span>
-  
-                <span>
-                  <button 
-                    onClick={()=>this.onDismiss(item.objectID)}
-                    type='button'
-                  >
-                    Dismiss
-                  </button>
-                </span>
-              </div>
-            );
-          }
-        )}
-
+        <Search
+          value={searchTerm}
+          onChange={this.onSearchChange}  
+        >
+          Search
+        </Search>
+        <Table
+          list={list}
+          pattern={searchTerm}
+          onDismiss={this.onDismiss}
+        />
       </div>
     );
   }
 }
 
+class Search extends Component {
+  render() {
+    const {value, onChange,children} = this.props;
+    return (
+      <form>
+        {children}
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+        />
+      </form>
+    );
+  }
+}
+
+class Table extends Component {
+  render() {
+    const {list, pattern, onDismiss} = this.props;
+    return (
+      <div>
+        {list.filter(isSearched(pattern)).map(item =>
+          <div key={item.objectID}>
+            <span>
+              <a href={item.url}>{item.title}</a>
+            </span>
+            <span>{item.author}</span>
+            <span>{item.num_comments}</span>
+            <span>{item.points}</span>
+            <span>
+              <button 
+                onClick={() => onDismiss(item.objectID)}
+                type='button'
+              >
+                Dismiss
+              </button>
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+}
 export default App;
