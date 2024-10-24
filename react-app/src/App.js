@@ -65,14 +65,18 @@ class App extends Component {
     const {list, searchTerm} = this.state;
 
     //声明变量关键字const和let更常见
+    //当我们想要在自己创建的组件中再嵌套其他元素，就会用到children属性
+    //Search其实就是<Search>组件里面的{children}，可以改变其显示内容 
     return (
-      <div className="App">
+      <div className="page">
+        <div className='interactions'>
         <Search
           value={searchTerm}
           onChange={this.onSearchChange}  
         >
           Search
         </Search>
+        </div>
         <Table
           list={list}
           pattern={searchTerm}
@@ -83,29 +87,22 @@ class App extends Component {
   }
 }
 
-class Search extends Component {
-  render() {
-    const {value, onChange,children} = this.props;
-    return (
-      <form>
-        {children}
-        <input
-          type="text"
-          value={value}
-          onChange={onChange}
-        />
-      </form>
-    );
-  }
-}
+//当子组件有嵌套的子内容时，才需要从props中解构出children属性
+//下面是函数式无状态组件,代码怎么能这么好看啊
+const Search = ({value, onChange, children}) =>
+  <form>
+    {children}
+    <input
+      type="text"
+      value={value}
+      onChange={onChange}
+    />
+  </form>
 
-class Table extends Component {
-  render() {
-    const {list, pattern, onDismiss} = this.props;
-    return (
-      <div>
+const Table = ({list, pattern, onDismiss}) =>
+  <div className='table'>
         {list.filter(isSearched(pattern)).map(item =>
-          <div key={item.objectID}>
+          <div key={item.objectID} className='table-row'>
             <span>
               <a href={item.url}>{item.title}</a>
             </span>
@@ -113,17 +110,26 @@ class Table extends Component {
             <span>{item.num_comments}</span>
             <span>{item.points}</span>
             <span>
-              <button 
+              <Button 
                 onClick={() => onDismiss(item.objectID)}
-                type='button'
+                className='button-inline'
               >
                 Dismiss
-              </button>
+              </Button>
             </span>
           </div>
         )}
-      </div>
-    );
-  }
-}
+  </div>
+
+//可复用组件
+//className属性可以给元素添加类名，如果没有就表示空字符串，而不是undefined
+const Button = ({onClick,className='', children}) =>
+  <button
+        onClick={onClick}
+        className={className}
+        type='button'
+  >
+      {children}
+  </button>
+
 export default App;
